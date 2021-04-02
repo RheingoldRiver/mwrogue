@@ -1,10 +1,11 @@
 import json
 import re
+
 from unidecode import unidecode
 
+from mwcleric.cargo_client import CargoClient
 from .errors import EsportsCacheKeyError
-from .site import Site
-from .cargo_client import CargoClient
+from mwcleric.site import Site
 
 
 class EsportsLookupCache(object):
@@ -15,13 +16,13 @@ class EsportsLookupCache(object):
         self.redirect_cache = {}
         self.event_tricode_cache = {}
         self.event_playername_cache = {}
-    
+
     def clear(self):
         self.cache = {}
         self.redirect_cache = {}
         self.event_tricode_cache = {}
         self.event_playername_cache = {}
-    
+
     def _get_json_lookup(self, filename):
         """
         Returns a json representation of the requested file, queriying the site to retrieve it if needed
@@ -71,7 +72,7 @@ class EsportsLookupCache(object):
         if length not in value_table:
             raise EsportsCacheKeyError(filename, key, length, value_table)
         return value_table[length]
-    
+
     def get_target(self, title):
         """
         Caches & returns the target of a title of a wiki page, caching the result and returning
@@ -83,7 +84,7 @@ class EsportsLookupCache(object):
         if title in self.redirect_cache:
             return self.redirect_cache[title]
         return self.site.pages[title].resolve_redirect().name
-    
+
     def get_team_from_event_tricode(self, event, tricode):
         """
         Determines the full name of a team based on its tricode, assuming tricode matches the short name on the wiki
@@ -99,13 +100,13 @@ class EsportsLookupCache(object):
             return result
         self._populate_event_tricodes(event)
         return self._get_team_from_event_tricode_raw(event, tricode)
-    
+
     def _get_team_from_event_tricode_raw(self, event, tricode):
         if event in self.event_tricode_cache:
             if tricode in self.event_tricode_cache[event]:
                 return self.event_tricode_cache[event][tricode]
         return None
-    
+
     def _populate_event_tricodes(self, event):
         result = self.cargo_client.query(
             tables="TournamentRosters=Ros,TeamRedirects=TRed,Teams",
@@ -131,20 +132,20 @@ class EsportsLookupCache(object):
     def get_disambiguated_player_from_event(self, event, team, player):
         """
         Returns the disambiguated ID of the player based on the team they were playing on in the event.
-        
+
         For performance, the first time a team & event are queried, a single network call will be made
         to retrieve all possible player names for that event.
-        
+
         These will be stored in a three-layer dictionary keyed first by event, then by team,
         then finally by player ID (not disambiguated), and ultimately yielding disambiguated player ID
         Because it's possible for a player to rename mid-event, we will just include every lifetime ID
         the player has ever had, so that future requests in the same session can use other IDs.
         The current request will use the ID requested by the current function call.
-        
+
         This method has a failure chance if two players on the same team historically shared an ID
         We could attempt to mitigate this failure chance by checking position
         TODO: Add support for low-priority disambiguation table, this will also mitigate this possibility
-        
+
         teams are themselves listed within tournaments
         :param event: will be resolved as a redirect if needed
         :param team: can be a tricode if needed
@@ -152,7 +153,7 @@ class EsportsLookupCache(object):
         :return: the disambiguated form of the player param
         """
         event = self.get_target(event)
-        
+
         # we'll keep all player keys lowercase
         player_lookup = unidecode(player).lower()
         team = self.get('Team', team, 'link', allow_fallback=True)
@@ -171,7 +172,7 @@ class EsportsLookupCache(object):
                 if player_lookup in self.event_playername_cache[event][team]:
                     return self.event_playername_cache[event][team][player_lookup]
         return None
-    
+
     def _populate_event_team_players(self, event):
         result = self.cargo_client.query(
             tables="TournamentPlayers=TP,PlayerRedirects=PR1,PlayerRedirects=PR2,LowPriorityRedirects=LPR",
@@ -185,10 +186,8 @@ class EsportsLookupCache(object):
             if item['Team'] not in d:
                 d[item['Team']] = {}
             team_entry = d[item['Team']]
-
-            if unidecode(item['CurrentName']) == unidecode(item['DisambiguatedName']):
-                item['DisambiguatedName'] = item['CurrentName']
-
+            if unidecode(item['ID']) == unidecode(item['DisambiguatedName']):
+                item['DisambiguatedName'] = item['ID']
             disambiguation = re.sub(r'^' + re.escape(item['ID']), '', item['DisambiguatedName'])
             key = unidecode(item['ID']).lower()
             if key not in team_entry or disambiguation != '':

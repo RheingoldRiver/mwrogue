@@ -39,11 +39,12 @@ If you don't want to log in, you can just create an EsportsSite/GamepediaSite ob
 For people wanting to edit wikis, `PageModifier` and `TemplateModifier` are the two things most likely to make your life easier. To use them you subclass and then overwrite methods to modify the page or template as needed, then instantiate the subclass and run. 
 
 For `PageModifier`, you probably want *either* `updage_plaintext` *or* `update_wikitext`, not both.
-## Copyable code 
+## Copyable code
+
 ```python
-from river_mwclient.esports_client import EsportsClient
-from river_mwclient.auth_credentials import AuthCredentials
-from river_mwclient.template_modifier import TemplateModifierBase
+from mwrogue.esports_client import EsportsClient
+from mwrogue.auth_credentials import AuthCredentials
+from mwrogue.template_modifier import TemplateModifierBase
 
 credentials = AuthCredentials(user_file="me")
 site = EsportsClient('lol', credentials=credentials)
@@ -60,9 +61,9 @@ TemplateModifier(site, 'TEMPLATEYOUCAREABOUT',
 ```
 
 ```python
-from river_mwclient.esports_client import EsportsClient
-from river_mwclient.auth_credentials import AuthCredentials
-from river_mwclient.page_modifier import PageModifierBase
+from mwrogue.esports_client import EsportsClient
+from mwrogue.auth_credentials import AuthCredentials
+from mwrogue.page_modifier import PageModifierBase
 
 credentials = AuthCredentials(user_file="me")
 site = EsportsClient('lol', credentials=credentials)

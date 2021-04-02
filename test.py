@@ -1,21 +1,16 @@
-from river_mwclient.esports_client import EsportsClient
-from river_mwclient.auth_credentials import AuthCredentials
-from river_mwclient.gamepedia_client import GamepediaClient
-from river_mwclient.wiki_client import WikiClient
-from river_mwclient.errors import EsportsCacheKeyError
-from river_mwclient.wiki_time_parser import time_from_str
-
+from mwrogue.auth_credentials import AuthCredentials
+from mwrogue.esports_client import EsportsClient
+from mwrogue.wiki_time_parser import time_from_str
 
 credentials = AuthCredentials(user_file='me')
 
 site = EsportsClient('lol', credentials=credentials)
 
-# check schemes
-site2 = WikiClient('https://wikisandbox.gamepedia.com')
-site3 = WikiClient('http://wikisandbox.gamepedia.com', scheme='https', credentials=credentials)
-
 # for ns in site.namespaces:
 #     print(ns.name)
+
+assert site.cache.get_disambiguated_player_from_event('European Masters/2021 Season/Spring Play-In', 'G2 Arctic',
+                                                      'Koldo') == 'Koldo'
 
 assert site.cache.get_disambiguated_player_from_event(
     'Claro Stars League/2021 Season/Opening Season', 'Luxor Gaming', 'Zeldris') == 'Zeldris (Christian Ticlavilca)'

@@ -1,5 +1,5 @@
-from river_mwclient.logs.log_entry import LogEntry
-from river_mwclient.wiki_client import WikiClient
+from mwrogue.logs.log_entry import LogEntry
+from mwrogue.wiki_client import WikiClient
 
 
 class MoveLogEntry(LogEntry):
