@@ -6,8 +6,8 @@ This library is a client for connecting to, and occasionally editing, the Fandom
 
 This library can be installed from PyPI:
 
-```angular2html
-pip install pwrogue
+```
+pip install mwrogue
 ```
 
 For the latest development version, you may wish to pull directly from the repo:
