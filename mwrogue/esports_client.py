@@ -1,4 +1,11 @@
+import copy
 import re
+
+import mwparserfromhell
+from mwclient.page import Page
+from typing import List, Union, Optional
+
+from mwparserfromhell.nodes.extras import Parameter
 
 from .auth_credentials import AuthCredentials
 from mwcleric.cargo_client import CargoClient
@@ -6,6 +13,7 @@ from .errors import CantFindMatchHistory
 from .lookup_cache import EsportsLookupCache
 from mwcleric.fandom_client import FandomClient
 from mwcleric.site import Site
+from mwparserfromhell.nodes.template import Template
 
 ALL_ESPORTS_WIKIS = ['lol', 'halo', 'smite', 'vg', 'rl', 'pubg', 'fortnite',
                      'apexlegends', 'fifa', 'gears', 'nba2k', 'paladins', 'siege',
@@ -138,3 +146,70 @@ class EsportsClient(FandomClient):
         if len(result) == 0:
             raise CantFindMatchHistory
         return result[0]
+
+    def backup_template(self, template: Template, page: Union[str, Page],
+                        key: Union[str, List[str]]):
+        """
+        Backs up a template in the `Backup` namespace. The template can later be restored with `get_restored_template`.
+        :param template: Template object
+        :param page: Page or title where the template is located on
+        :param key: Identifying set of params that we can use to locate the template when we restore it
+        :return: null
+        """
+        if isinstance(page, str):
+            page = self.client.pages[page]
+        if isinstance(key, str):
+            key = [key]
+        key_template = Template('BackupKey')
+        for key_param in key:
+            key_template.add(key_param, template.get(key_param, Parameter('', '')).value)
+
+        # this method will be used in TemplateModifier so it is essential that
+        # we do not modify the original
+        copy_template = copy.deepcopy(template)
+        copy_template.add('backup_key', str(key_template))
+        self.client.pages['Backup:' + page.name].append('\n' + str(copy_template), contentmodel='text')
+
+    def get_restored_template(self, template: Template, page: Union[str, Page],
+                              key: Union[str, List[str]]) -> Optional[Template]:
+        """
+        Looks for the backed-up version of the specified template on the backup page & returns it
+
+        The template should have been backed up using the backup_template method earlier.
+
+        :param template: Template object that we want to restore from backup page
+        :param page: Page or title where the template is located on
+        :param key: Identifying set of params to use to restore the template from
+        :return: Template object, if found, else None
+        """
+        if isinstance(page, str):
+            page = self.client.pages[page]
+        if isinstance(key, str):
+            key = [key]
+        backup_text = self.client.pages['Backup:' + page.name].text()
+        for backup_template in mwparserfromhell.parse(backup_text).filter_templates():
+            if not backup_template.name.matches(template.name):
+                continue
+
+            # kinda need to do a hack to get this as a template
+            backup_key_str = str(backup_template.get('backup_key').value)
+            backup_key_wikitext = mwparserfromhell.parse(backup_key_str)
+            backup_key = None
+            for tl in backup_key_wikitext.filter_templates():
+                if tl.name.matches('BackupKey'):
+                    backup_key = tl
+                    break
+            # now backup_key is a template value of BackupKey
+
+            is_match = True
+            i = 0
+            for param in backup_key.params:
+                name = param.name.strip()
+                if name in key:
+                    if param.value.strip() == template.get(name, Parameter('', '')).value.strip():
+                        i += 1
+                else:
+                    is_match = False
+            if i + 1 == len(key) and is_match:
+                return backup_template
+        return None
