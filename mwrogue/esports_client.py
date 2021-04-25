@@ -147,17 +147,43 @@ class EsportsClient(FandomClient):
             raise CantFindMatchHistory
         return result[0]
 
-    def backup_template(self, template: Template, page: Page, key: Union[str, List[str]]):
+    def backup_template(self, template: Template, page: Union[str, Page],
+                        key: Union[str, List[str]]):
+        """
+        Backs up a template in the `Backup` namespace. The template can later be restored with `get_restored_template`.
+        :param template: Template object
+        :param page: Page or title where the template is located on
+        :param key: Identifying set of params that we can use to locate the template when we restore it
+        :return: null
+        """
+        if isinstance(page, str):
+            page = self.client.pages[page]
         if isinstance(key, str):
             key = [key]
         key_template = Template('BackupKey')
         for key_param in key:
             key_template.add(key_param, template.get(key_param, Parameter('', '')).value)
+
+        # this method will be used in TemplateModifier so it is essential that
+        # we do not modify the original
         copy_template = copy.deepcopy(template)
         copy_template.add('backup_key', str(key_template))
-        self.client.pages['Backup:' + page.name].append('\n' + str(copy_template))
+        self.client.pages['Backup:' + page.name].append('\n' + str(copy_template), contentmodel='text')
 
-    def get_restored_template(self, template: Template, page: Page, key: Union[str, List[str]]) -> Optional[Template]:
+    def get_restored_template(self, template: Template, page: Union[str, Page],
+                              key: Union[str, List[str]]) -> Optional[Template]:
+        """
+        Looks for the backed-up version of the specified template on the backup page & returns it
+
+        The template should have been backed up using the backup_template method earlier.
+
+        :param template: Template object that we want to restore from backup page
+        :param page: Page or title where the template is located on
+        :param key: Identifying set of params to use to restore the template from
+        :return: Template object, if found, else None
+        """
+        if isinstance(page, str):
+            page = self.client.pages[page]
         if isinstance(key, str):
             key = [key]
         backup_text = self.client.pages['Backup:' + page.name].text()

@@ -1,6 +1,7 @@
 from typing import Union, Optional
 
 from mwcleric.template_modifier import TemplateModifierBase as MwclericTemplateModifier
+from mwparserfromhell.nodes import Template
 
 from mwrogue.esports_client import EsportsClient
 
@@ -28,24 +29,23 @@ class TemplateModifierBase(MwclericTemplateModifier):
         self.site.backup_template(template=self.current_template, page=self.current_page, key=key)
 
     def restore(self, key):
+        self.current_template: Template
         if self.current_page.name.startswith('Backup:'):
             return
         to_restore = self.site.get_restored_template(self.current_template, self.current_page, key)
         if to_restore is None:
+            if not self.quiet:
+                if isinstance(key, str):
+                    key = [key]
+                print('Could not find restore data for template on page "{}" with key: {}'.format(
+                    self.current_page.name,
+                    ', '.join([str(self.current_template.get(_, _)) for _ in key])))
             return
         to_restore.remove('backup_key')
 
-        # restore stuff carefully, so that we can preserve whitespace as much as possible
-
-        # first, restore all the params that are in both, while at the same time deleting stuff not in the backup
         for param in self.current_template.params:
-            name = param.name.strip()
-            if to_restore.has(name):
-                self.current_template.add(name, to_restore.get(name).value.strip())
-                to_restore.remove(name)
-            else:
-                self.current_template.remove(name)
+            self.current_template.remove(param.name.strip())
 
-        # now add what we missed from the to_restore template
         for param in to_restore.params:
-            self.current_template.add(param.name.strip(), param.value.strip())
+            name = param.name.strip()
+            self.current_template.add(param.name, to_restore.get(name).value, preserve_spacing=False)
