@@ -210,6 +210,6 @@ class EsportsClient(FandomClient):
                         i += 1
                 else:
                     is_match = False
-            if i + 1 == len(key) and is_match:
+            if i == len(key) and is_match:
                 return backup_template
         return None
