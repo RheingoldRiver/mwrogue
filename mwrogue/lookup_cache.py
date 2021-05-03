@@ -93,9 +93,9 @@ class EsportsLookupCache(object):
         :param tricode: Official tricode of the team, must match wiki teamshort
         :return: Wiki teamlinkname
         """
-        event = self.get_target(event)
         if event is None:
             raise InvalidEventError
+        event = self.get_target(event)
         tricode = tricode.lower()
         result = self._get_team_from_event_tricode_raw(event, tricode)
         if result is not None:
@@ -154,6 +154,8 @@ class EsportsLookupCache(object):
         :param player: the current player ID to return the disambiguated name of
         :return: the disambiguated form of the player param
         """
+        if event is None:
+            raise InvalidEventError
         event = self.get_target(event)
 
         # we'll keep all player keys lowercase
