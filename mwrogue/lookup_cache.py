@@ -4,7 +4,7 @@ import re
 from unidecode import unidecode
 
 from mwcleric.cargo_client import CargoClient
-from .errors import EsportsCacheKeyError
+from .errors import EsportsCacheKeyError, InvalidEventError
 from mwcleric.site import Site
 
 
@@ -94,6 +94,8 @@ class EsportsLookupCache(object):
         :return: Wiki teamlinkname
         """
         event = self.get_target(event)
+        if event is None:
+            raise InvalidEventError
         tricode = tricode.lower()
         result = self._get_team_from_event_tricode_raw(event, tricode)
         if result is not None:
