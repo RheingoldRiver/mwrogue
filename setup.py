@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="mwrogue",
-    version="0.0.5",
+    version="0.0.7",
     author="RheingoldRiver",
     author_email="river.esports@gmail.com",
     description="Client for accessing Fandom/Gamepedia Esports Wikis",
@@ -14,5 +14,5 @@ setuptools.setup(
     url="https://github.com/RheingoldRiver/mwrogue",
     packages=setuptools.find_packages(),
     python_requires='>=3.6',
-    install_requires=['mwparserfromhell', 'pytz', 'mwclient>=0.10.1', 'python-dateutil', 'Unidecode', 'mwcleric']
+    install_requires=['mwparserfromhell', 'pytz', 'mwclient>=0.10.1', 'python-dateutil', 'Unidecode', 'mwcleric>=0.6.2']
 )

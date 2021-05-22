@@ -9,6 +9,9 @@ from mwparserfromhell.nodes.extras import Parameter
 
 from .auth_credentials import AuthCredentials
 from mwcleric.cargo_client import CargoClient
+
+from .error_reporting.wiki_content_error import WikiContentError
+from .error_reporting.wiki_script_error import WikiScriptError
 from .errors import CantFindMatchHistory
 from .lookup_cache import EsportsLookupCache
 from mwcleric.fandom_client import FandomClient
@@ -51,6 +54,7 @@ class EsportsClient(FandomClient):
             self.cache = cache
         else:
             self.cache = EsportsLookupCache(self.client, cargo_client=self.cargo_client)
+        self.errors = []
 
     @staticmethod
     def get_wiki(wiki):
@@ -213,3 +217,20 @@ class EsportsClient(FandomClient):
             if i == len(key) and is_match:
                 return backup_template
         return None
+
+    def log_error_script(self, title: str = None, error: Exception = None):
+        self.errors.append(WikiScriptError(title, error))
+
+    def log_error_content(self, title: str = None, text: str = None):
+        self.errors.append(WikiContentError(title, error=text))
+
+    def report_all_errors(self, error_title):
+        if not self.errors:
+            return
+        error_page = self.client.pages['Log:' + error_title]
+        errors = [_.format_for_print() for _ in self.errors]
+        error_text = '<br>\n'.join(errors)
+        error_page.append('\n' + error_text)
+
+        # reset the list so we can reuse later if needed
+        self.errors = []
