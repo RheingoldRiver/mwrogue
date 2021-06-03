@@ -8,14 +8,14 @@ from typing import List, Union, Optional
 from mwparserfromhell.nodes.extras import Parameter
 
 from .auth_credentials import AuthCredentials
-from mwcleric.cargo_client import CargoClient
+from mwcleric.clients.cargo_client import CargoClient
 
 from .error_reporting.wiki_content_error import WikiContentError
 from .error_reporting.wiki_script_error import WikiScriptError
 from .errors import CantFindMatchHistory
 from .lookup_cache import EsportsLookupCache
 from mwcleric.fandom_client import FandomClient
-from mwcleric.site import Site
+from mwcleric.clients.site import Site
 from mwparserfromhell.nodes.template import Template
 
 ALL_ESPORTS_WIKIS = ['lol', 'halo', 'smite', 'vg', 'rl', 'pubg', 'fortnite',
