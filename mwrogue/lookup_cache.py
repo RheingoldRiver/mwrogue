@@ -3,9 +3,9 @@ import re
 
 from unidecode import unidecode
 
-from mwcleric.cargo_client import CargoClient
+from mwcleric.clients.cargo_client import CargoClient
 from .errors import EsportsCacheKeyError, InvalidEventError
-from mwcleric.site import Site
+from mwcleric.clients.site import Site
 
 
 class EsportsLookupCache(object):
