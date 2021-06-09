@@ -4,7 +4,7 @@ from datetime import datetime
 
 class WikiTime(object):
     """
-    Leaguepedia and the other esports wikis us an EXTREMELY simplified time zone model.
+    Leaguepedia and the other esports wikis use an EXTREMELY simplified time zone model.
     In this model, there are only three time zones: PST, CET, and KST.
     Additionally, the wiki itself does not know anything about daylight savings;
     instead, it relies on the user supplying DST metadata along with every timestamp.
