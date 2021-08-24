@@ -9,6 +9,8 @@ site = EsportsClient('lol', credentials=credentials)
 # for ns in site.namespaces:
 #     print(ns.name)
 
+assert site.query_bayes_id('ESPORTSTMNT01_2200321')['Event'] == 'LCK 2021 Summer Playoffs'
+
 assert site.cache.get_disambiguated_player_from_event('European Masters/2021 Season/Spring Play-In', 'G2 Arctic',
                                                       'Koldo') == 'Koldo'
 
