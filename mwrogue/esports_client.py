@@ -1,4 +1,5 @@
 import copy
+import json
 import re
 
 import mwparserfromhell
@@ -161,6 +162,40 @@ class EsportsClient(FandomClient):
         if len(result) == 0:
             raise CantFindMatchHistory
         return result[0]
+
+    def get_v4_data_and_timeline(self, rpgid: str):
+        """
+        Queries Leaguepedia to return two jsons: The data & timeline from a single game.
+
+        This function is limited in scope: It will not allow you to query multiple games in a single query;
+        however, the MediaWiki API does support this. It also will not allow you to drop one of the jsons
+        for a smaller response package if you don't require all of the data. You also must know the ID in advance.
+        You can find IDs by querying the MatchScheduleGame Cargo table and looking up the RiotPlatformGameId field.
+
+        Raises a KeyError in the case that data is not found.
+        If Timeline is not found, `None` will be returned for that json (this happens for chronobreaks).
+
+        This function is unavailable on wikis other than Leaguepedia.
+        :param rpgid: A single riot_platform_game_id
+        :return: Two jsons, the data & timeline for the game
+        """
+        titles = 'V4 data:{}|V4 data:{}/Timeline'.format(rpgid, rpgid)
+        result = self.client.post(
+            'query', prop='revisions', titles=titles, rvprop='content',
+            rvslots='main'
+        )
+        data = None
+        timeline = None
+        for _, page_data in result['query']['pages'].items():
+            # This is lazy but there's 2 pages total so it's safe tbh
+            if 'Timeline' in page_data['title']:
+                timeline = json.loads(page_data['revisions'][0]['slots']['main']['*'])
+            else:
+                data = json.loads(page_data['revisions'][0]['slots']['main']['*'])
+
+        if data is None:
+            raise KeyError
+        return data, timeline
 
     def backup_template(self, template: Template, page: Union[str, Page],
                         key: Union[str, List[str]]):
