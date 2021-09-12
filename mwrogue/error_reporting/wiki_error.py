@@ -18,5 +18,5 @@ class WikiError(object):
             self.date,
             self.error_type,
             '[[{}]]'.format(self.title) if self.title else '(No title recorded)',
-            traceback.format_exception(self.error)
+            traceback.format_exception(None, self.error, self.error.__traceback__)
         )
