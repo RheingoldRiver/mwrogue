@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="mwrogue",
-    version="0.0.13",
+    version="0.0.14",
     author="RheingoldRiver",
     author_email="river.esports@gmail.com",
     description="Client for accessing Fandom/Gamepedia Esports Wikis",
