@@ -4,7 +4,7 @@ import re
 
 import mwparserfromhell
 from mwclient.page import Page
-from typing import List, Union, Optional
+from typing import List, Union, Optional, Literal
 
 from mwparserfromhell.nodes.extras import Parameter
 
@@ -163,7 +163,25 @@ class EsportsClient(FandomClient):
             raise CantFindMatchHistory
         return result[0]
 
-    def get_v4_data_and_timeline(self, rpgid: str):
+    def get_data_and_timeline_from_gameid(self, game_id: str):
+        """
+        Queries Leaguepedia to return two jsons: The data & timeline from a single game.
+
+        :param game_id: The Leaguepedia game_id
+        :return: Two jsons, the data & timeline for the game
+        """
+        result = self.cargo_client.query(
+            tables=["MatchScheduleGame=MSG", "PostgameJsonMetadata=PJM"],
+            join_on='MSG.RiotPlatformGameId=PJM.RiotPlatformGameId',
+            fields=['PJM.Version=Version', 'PJM.RiotPlatformGameId=RPGId'],
+            where=f"MSG.GameId=\"{game_id}\"",
+        )
+        if not result:
+            raise KeyError
+        game = result[0]
+        return self.get_data_and_timeline(rpgid=game['RPGId'], version=game['Version'])
+
+    def get_data_and_timeline(self, rpgid: str, version: Literal[4, 5] = 4):
         """
         Queries Leaguepedia to return two jsons: The data & timeline from a single game.
 
@@ -177,9 +195,10 @@ class EsportsClient(FandomClient):
 
         This function is unavailable on wikis other than Leaguepedia.
         :param rpgid: A single riot_platform_game_id
+        :param version: The API version of the json to download. Defaults to 4.
         :return: Two jsons, the data & timeline for the game
         """
-        titles = 'V4 data:{}|V4 data:{}/Timeline'.format(rpgid, rpgid)
+        titles = f"V{version} data:{rpgid}|V{version} data:{rpgid}/Timeline"
         result = self.client.post(
             'query', prop='revisions', titles=titles, rvprop='content',
             rvslots='main'
