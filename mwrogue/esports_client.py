@@ -43,6 +43,7 @@ class EsportsClient(FandomClient):
                  **kwargs):
         """
         Create a site object.
+
         :param wiki: Name of a wiki
         :param client: WikiClient object. If this is provided, SessionManager will not be used.
         :param credentials: Optional. Provide if you want a logged-in session.
@@ -93,6 +94,7 @@ class EsportsClient(FandomClient):
     def get_one_data_page(self, event, i):
         """
         Find one data page for an event
+
         :param event: Overview Page of an event
         :param i: the ith page to return
         :return: a Page object of a single data page
@@ -104,6 +106,7 @@ class EsportsClient(FandomClient):
     def data_pages(self, event):
         """
         Find all the data pages for an event.
+
         :param event: Overview Page of event
         :return: generator of data pages
         """
@@ -194,6 +197,7 @@ class EsportsClient(FandomClient):
         If Timeline is not found, `None` will be returned for that json (this happens for chronobreaks).
 
         This function is unavailable on wikis other than Leaguepedia.
+
         :param rpgid: A single riot_platform_game_id
         :param version: The API version of the json to download. Defaults to 4.
         :return: Two jsons, the data & timeline for the game
@@ -220,6 +224,7 @@ class EsportsClient(FandomClient):
                         key: Union[str, List[str]]):
         """
         Backs up a template in the `Backup` namespace. The template can later be restored with `get_restored_template`.
+
         :param template: Template object
         :param page: Page or title where the template is located on
         :param key: Identifying set of params that we can use to locate the template when we restore it
