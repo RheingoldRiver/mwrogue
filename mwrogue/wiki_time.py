@@ -23,6 +23,7 @@ class WikiTime(object):
     def __init__(self, timestamp: datetime, tz: timezone = utc):
         """
         Creates a wiki date-time object
+
         :param timestamp: a datetime object
         :param tz: optional, a timezone. if not provided, utc will be assumed.
         """

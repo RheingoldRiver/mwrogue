@@ -26,6 +26,7 @@ class EsportsLookupCache(object):
     def _get_json_lookup(self, filename):
         """
         Returns a json representation of the requested file, queriying the site to retrieve it if needed
+
         :param filename: The name of the file to return, e.g. "Champion" or "Role"
         :return: A json object representing the lookup file
         """
@@ -50,6 +51,7 @@ class EsportsLookupCache(object):
         """
         Returrns the length of the lookup of a key requested from the filename requested. Assumes the file has
         the same structure as the -names modules on Leaguepedia.
+
         :param filename: "Champion", "Role", etc. - the name of the file
         :param key: The lookup key, e.g. "Morde"
         :param length: The length of value to return, e.g. "long" or "link"
@@ -77,6 +79,7 @@ class EsportsLookupCache(object):
         """
         Caches & returns the target of a title of a wiki page, caching the result and returning
         the cached result if possible
+
         :param title: Title of a page on the wiki
         :return: Redirect target of the title
         """
@@ -89,6 +92,7 @@ class EsportsLookupCache(object):
         """
         Determines the full name of a team based on its tricode, assuming tricode matches the short name on the wiki
         and that tricodes are unique within the provided event
+
         :param event: Event within which to restrict the lookup
         :param tricode: Official tricode of the team, must match wiki teamshort
         :return: Wiki teamlinkname
@@ -146,9 +150,11 @@ class EsportsLookupCache(object):
 
         This method has a failure chance if two players on the same team historically shared an ID
         We could attempt to mitigate this failure chance by checking position
+
         TODO: Add support for low-priority disambiguation table, this will also mitigate this possibility
 
         teams are themselves listed within tournaments
+
         :param event: will be resolved as a redirect if needed
         :param team: can be a tricode if needed
         :param player: the current player ID to return the disambiguated name of

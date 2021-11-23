@@ -6,7 +6,7 @@
 Welcome to mwrogue's documentation!
 ===================================
 
-You may also want to check out `mwcleric's documentation <https://mwcleric.readthedocs.io/en/latest/index.html>`:
+mwrogue provides a client for interacting with the Fandom esports wikis, primarily Leaguepedia. The classes available here subclass those in the package mwcleric, and you may also want to check out `mwcleric's documentation <https://mwcleric.readthedocs.io/en/latest/index.html>`_. Of particular note in that package is the cargo_client.
 
 .. toctree::
    :maxdepth: 2
