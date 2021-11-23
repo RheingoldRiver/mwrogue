@@ -14,5 +14,5 @@ setuptools.setup(
     url="https://github.com/RheingoldRiver/mwrogue",
     packages=setuptools.find_packages(),
     python_requires='>=3.6',
-    install_requires=['mwparserfromhell', 'pytz', 'mwclient>=0.10.1', 'python-dateutil', 'Unidecode', 'mwcleric>=0.6.2']
+    install_requires=['mwparserfromhell', 'pytz', 'mwclient', 'python-dateutil', 'Unidecode', 'mwcleric']
 )
