@@ -1,5 +1,7 @@
 ## MediaWiki Repository Of Gadgets Useful to Esports (MW ROGUE)
 
+For full docs, please see [readthedocs.io](https://mwrogue.readthedocs.io/en/latest/index.html).
+
 This library is a client for connecting to, and occasionally editing, the Fandom/Gamepedia esports wikis. For general-purpose wiki editing, see `mwcleric`: https://github.com/RheingoldRiver/mwcleric.
 
 ## Install/upgrade:
