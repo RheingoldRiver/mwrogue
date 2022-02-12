@@ -43,3 +43,6 @@ assert site.cache.get_team_from_event_tricode('Ultraliga Season 5 Promotion', 'S
 # check a low-priority redirect player
 assert site.cache.get_disambiguated_player_from_event(
     'LCS 2020 Summer', 'FLY', 'Solo') == 'Solo (Colin Earnest)'
+
+# check tournaments to script
+assert "Music X Esports: Hyperplay 2018" in site.tournaments_to_skip('mhtowinners')

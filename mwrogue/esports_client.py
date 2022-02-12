@@ -309,3 +309,19 @@ class EsportsClient(FandomClient):
 
         # reset the list so we can reuse later if needed
         self.errors = []
+
+    def tournaments_to_skip(self, script):
+        result = self.cargo_client.query(
+            tables="TournamentScriptsToSkip",
+            fields="OverviewPage",
+            where=f'Script="{script}"'
+        )
+        tournaments_to_skip = []
+        for item in result:
+            tournaments_to_skip.append(item["OverviewPage"])
+        return tournaments_to_skip
+
+    def tournaments_to_skip_where(self, script, field):
+        tournaments_to_skip = self.tournaments_to_skip(script)
+        condition = ','.join(['"{}"'.format(_) for _ in tournaments_to_skip])
+        return f"{field} NOT IN ({condition})"
