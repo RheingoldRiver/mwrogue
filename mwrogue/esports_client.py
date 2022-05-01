@@ -176,7 +176,7 @@ class EsportsClient(FandomClient):
         result = self.cargo_client.query(
             tables=["MatchScheduleGame=MSG", "PostgameJsonMetadata=PJM"],
             join_on='MSG.RiotPlatformGameId=PJM.RiotPlatformGameId',
-            fields=['PJM.Version=Version', 'PJM.RiotPlatformGameId=RPGId'],
+            fields=['PJM.RiotVersion=Version', 'PJM.RiotPlatformGameId=RPGId'],
             where=f"MSG.GameId=\"{game_id}\"",
         )
         if not result:
