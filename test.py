@@ -46,3 +46,6 @@ assert site.cache.get_disambiguated_player_from_event(
 
 # check tournaments to script
 assert "Music X Esports: Hyperplay 2018" in site.tournaments_to_skip('mhtowinners')
+
+# Check game data and timeline from game id result (Should be tuple of 2 elements => (data, timeline))
+assert len(site.get_data_and_timeline_from_gameid("LEC/2022 Season/Spring Season_Week 8_15_1")) == 2
