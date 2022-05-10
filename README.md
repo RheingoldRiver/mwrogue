@@ -15,7 +15,7 @@ pip install mwrogue
 For the latest development version, you may wish to pull directly from the repo:
 
 ```
-pip install -U git+git://github.com/RheingoldRiver/mwrogue
+pip install -U git+https://github.com/RheingoldRiver/mwrogue.git
 ```
 
 ## Example code
