@@ -195,6 +195,12 @@ class EsportsLookupCache(object):
             if item['Team'] not in d:
                 d[item['Team']] = {}
             team_entry = d[item['Team']]
+            if item['ID'] is None:
+                # case of redlinks
+                # TODO: maybe don't ignore redlinks?
+                continue
+            if item['DisambiguatedName'] is None:
+                continue
             if unidecode(item['ID']) == unidecode(item['DisambiguatedName']):
                 item['DisambiguatedName'] = item['ID']
             disambiguation = re.sub(r'^' + re.escape(item['ID']), '', item['DisambiguatedName'])
