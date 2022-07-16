@@ -133,6 +133,8 @@ class EsportsLookupCache(object):
 
     @staticmethod
     def unescape(string):
+        if string is None:
+            return ''
         return string.replace('&amp;', '&')
 
     def get_disambiguated_player_from_event(self, event, team, player):
