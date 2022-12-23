@@ -51,7 +51,7 @@ class EsportsClient(FandomClient):
         """
         self.wiki = self.get_wiki(wiki)
 
-        super().__init__(wiki, credentials=credentials, lang=lang, client=client, **kwargs)
+        super().__init__(self.wiki, credentials=credentials, lang=lang, client=client, **kwargs)
         if cache:
             self.cache = cache
         else:
