@@ -4,11 +4,15 @@ import re
 from unidecode import unidecode
 
 from mwcleric.clients.cargo_client import CargoClient
-from .errors import EsportsCacheKeyError, InvalidEventError
+from .errors import EsportsCacheKeyError, EsportsCacheTeamnameKeyError, InvalidEventError
 from mwcleric.clients.site import Site
 
 
 class EsportsLookupCache(object):
+    CARGO_TEAMNAMES_INPUTS_SEP = ";"
+    CARGO_TEAMNAMES_FIELDS = ["Link", "Longname", "Short", "Medium", "Exception", "Dark", "Black",
+                              "Inputs__full=Inputs"]
+
     def __init__(self, site: Site, cargo_client: CargoClient = None):
         self.site = site
         self.cargo_client = cargo_client
@@ -16,12 +20,15 @@ class EsportsLookupCache(object):
         self.redirect_cache = {}
         self.event_tricode_cache = {}
         self.event_playername_cache = {}
+        # For Data:Teamnames, not Module:Teamnames
+        self.cargo_teamnames_cache = {}
 
     def clear(self):
         self.cache = {}
         self.redirect_cache = {}
         self.event_tricode_cache = {}
         self.event_playername_cache = {}
+        self.cargo_teamnames_cache = {}
 
     def _get_json_lookup(self, filename):
         """
@@ -75,6 +82,50 @@ class EsportsLookupCache(object):
             raise EsportsCacheKeyError(filename, key, length, value_table)
         return value_table[length]
 
+    def get_cargo_teamname(self, key, prop, allow_fallback=False):
+        """
+        Returns the requested property for a given teamname, using data fetched from Cargo.
+
+        :param key: The teamname key or input, e.g. "fnc", "isurus"
+        :param prop: The property to return, e.g. "Long", "Inputs", "Short"
+        :param allow_fallback: Whether or not to fallback to returning the key if it's missing in the lookup
+        :return: The requested property of the team corresponding to the given key
+        """
+        # Mostly a copy of self.get but if I used a _get_raw (?) function or something like that
+        # to be used by both I wouldn't know how to call different exceptions with different params
+        if not self.cargo_teamnames_cache:
+            self._populate_cargo_teamnames()
+        if key is None:
+            return None
+        key = key.lower()
+        if key not in self.cargo_teamnames_cache:
+            if allow_fallback:
+                return key
+            return None
+        value_table = self.cargo_teamnames_cache[key]
+        if prop not in value_table:
+            raise EsportsCacheTeamnameKeyError(key, prop, value_table)
+        return value_table[prop]
+
+    def _populate_cargo_teamnames(self):
+        """
+        Queries all teamnames from cargo, builds a dictionary using inputs as a key
+        and caches the result. Also splits the Inputs field.
+        """
+        # I think at some point and maybe for non-admins this query could take a while
+        # and it could be improved to maybe only query the teams we need,
+        # but the parser does one team at a time and makes it a little bit
+        # difficult to implement, anyways we will cache the result so it's not that bad
+        result = self.cargo_client.query(
+            tables="Teamnames",
+            fields=", ".join(self.CARGO_TEAMNAMES_FIELDS)
+        )
+        d = {}
+        for item in result:
+            item["Inputs"] = item["Inputs"].split(self.CARGO_TEAMNAMES_INPUTS_SEP)
+            d.update(dict.fromkeys(item["Inputs"], item))
+        self.cargo_teamnames_cache = d
+
     def get_target(self, title):
         """
         Caches & returns the target of a title of a wiki page, caching the result and returning
@@ -123,10 +174,10 @@ class EsportsLookupCache(object):
         d = {}
         for item in result:
             team = item['Team']
-            link = self.unescape(self.get('Team', team, 'link', allow_fallback=True))
+            link = self.unescape(self.get_cargo_teamname(team, 'Link', allow_fallback=True))
             short = self.unescape(item['Short'])
             if short == '':
-                short = self.get('Team', team, 'short')
+                short = self.get_cargo_teamname(team, 'Short')
             if short is not None and short != '':
                 d[short.lower()] = link
         self.event_tricode_cache[event] = d
@@ -168,7 +219,7 @@ class EsportsLookupCache(object):
 
         # we'll keep all player keys lowercase
         player_lookup = unidecode(player).lower()
-        team = self.get('Team', team, 'link', allow_fallback=True)
+        team = self.get_cargo_teamname(team, 'Link', allow_fallback=True)
         disambiguation = self._get_player_from_event_and_team_raw(event, team, player_lookup)
         if disambiguation is not None:
             return player + disambiguation

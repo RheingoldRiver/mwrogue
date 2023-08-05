@@ -21,8 +21,8 @@ assert site.cache.get_disambiguated_player_from_event(
     'El_Nexo/2020_Season/Split_1_Playoffs', 'Movistar Riders Academy', 'Marky'
 ) == 'Marky (Pedro José Serrano)'
 
-# check fallback to Teams.Short
-assert site.cache.get_team_from_event_tricode('GUL 2020 Closing Playoffs', 'MK') == 'Mad Kings'
+# check fallback to tournament rosters short
+assert site.cache.get_team_from_event_tricode('2014 Season World Championship', 'NWS') == 'NaJin White Shield'
 
 assert site.cache.get_team_from_event_tricode('Worlds 2019 Main Event', 'SKT') == 'SK Telecom T1'
 
@@ -49,3 +49,12 @@ assert "Music X Esports: Hyperplay 2018" in site.tournaments_to_skip('mhtowinner
 
 # Check game data and timeline from game id result (Should be tuple of 2 elements => (data, timeline))
 assert len(site.get_data_and_timeline_from_gameid("LEC/2022 Season/Spring Season_Week 8_15_1")) == 2
+
+# Check cargo teamnames
+assert site.cache.get_cargo_teamname("isg", "Link") == "Isurus"
+
+# Check if teamnames inputs is actually a list and we split correctly
+assert isinstance(site.cache.get_cargo_teamname("fnc", "Inputs"), list)
+
+# Check if cargo teamnames cache was populated
+assert site.cache.cargo_teamnames_cache
