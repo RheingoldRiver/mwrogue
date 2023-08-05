@@ -15,7 +15,7 @@ class EsportsCacheKeyError(KeyError):
         )
 
 
-class EsportsCacheTeamnameKeyError(KeyError):
+class EsportsCacheCargoTeamnameKeyError(KeyError):
     def __init__(self, value, prop, value_table):
         self.value = value
         self.prop = prop
