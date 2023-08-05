@@ -4,7 +4,7 @@ import re
 from unidecode import unidecode
 
 from mwcleric.clients.cargo_client import CargoClient
-from .errors import EsportsCacheKeyError, EsportsCacheTeamnameKeyError, InvalidEventError
+from .errors import EsportsCacheKeyError, EsportsCacheCargoTeamnameKeyError, InvalidEventError
 from mwcleric.clients.site import Site
 
 
@@ -104,7 +104,7 @@ class EsportsLookupCache(object):
             return None
         value_table = self.cargo_teamnames_cache[key]
         if prop not in value_table:
-            raise EsportsCacheTeamnameKeyError(key, prop, value_table)
+            raise EsportsCacheCargoTeamnameKeyError(key, prop, value_table)
         return value_table[prop]
 
     def _populate_cargo_teamnames(self):
